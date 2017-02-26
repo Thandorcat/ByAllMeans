@@ -5,10 +5,17 @@ import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.ViewSwitcher;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 public class GameThread extends Thread implements Parcelable {
 
@@ -25,6 +32,7 @@ public class GameThread extends Thread implements Parcelable {
     };
     private static final String TAG = "GameThread";
     private final Object monitor;
+    ArrayList<Map<String, Object>> employeesData;
     private int tickerMonth;
     private int tickerWeek;
     private GameProject project;
@@ -36,7 +44,13 @@ public class GameThread extends Thread implements Parcelable {
     private TextView text2;
     private boolean running;
     private GameState state;
+    private ViewSwitcher projectViewSwitcher;
+    private TextView projectName;
+    private TextView projectIncome;
+    private ProgressBar projectProgress;
+    private TextView startNewProjectTextView;
     private GameSpeed speed;
+    private SimpleAdapter adapter;
 
     private Handler handler;
 
@@ -54,7 +68,7 @@ public class GameThread extends Thread implements Parcelable {
         //TODO implement doStart() method instead
         state = GameState.RUNNING;
         balance = 999999;
-        project = new GameProject("Game Dev Tycoon", 350);
+        employeesData = new ArrayList<>();
     }
 
     protected GameThread(Parcel in) {
@@ -86,7 +100,21 @@ public class GameThread extends Thread implements Parcelable {
         this.handler = handler;
         text1 = (TextView) activity.findViewById(R.id.textDate);
         text2 = (TextView) activity.findViewById(R.id.textBalance);
+        ListView listView = (ListView) activity.findViewById(R.id.employeesListView);
+        projectViewSwitcher = (ViewSwitcher) activity.findViewById(R.id.project_view_switcher);
+        projectName = (TextView) activity.findViewById(R.id.project_name);
+        projectIncome = (TextView) activity.findViewById(R.id.project_income);
+        projectProgress = (ProgressBar) activity.findViewById(R.id.project_progress);
+        startNewProjectTextView = (TextView) activity.findViewById(R.id.new_project_text_view);
+        startNewProjectTextView.setOnClickListener(v -> {
+            String[] titles = {"Call of Duty", "SERZH", "TRiTPO", "MATAN", "Gradle", "Android Studio"};
+            Random rand = new Random();
+            startNewProject(titles[rand.nextInt(6)], rand.nextInt(300) + 100, rand.nextInt(3000) + 1000);
+        });
+        adapter = new SimpleAdapter(activity, employeesData, R.layout.employee_view, new String[]{"Name", "Skill", "Salary"}, new int[]{R.id.employeeView_NameTextView, R.id.employeeView_skillTextView, R.id.employeeView_salaryTextView});
+        listView.setAdapter(adapter);
     }
+
 
     public void setSpeed(GameSpeed speed) {
         Log.d(TAG, "setSpeed(GameSpeed speed)");
@@ -128,39 +156,22 @@ public class GameThread extends Thread implements Parcelable {
                         }
                     }
 
-                    StringBuilder projectInfo = new StringBuilder();
 
                     if (project != null) {
                         workToDo = 0;
-
-                        projectInfo.append(String.format("project: %s\nprogress: %.2f%%\nfinished: %b\n",
-                                project.getTitle(),
-                                project.getProgress() * 100,
-                                project.isFinished()));
-
                         for (Employee employee :
                                 employees) {
                             workToDo += employee.work();
                         }
                         project.doWork(workToDo);
-                    } else {
-                        projectInfo.append("No active project\n");
-                    }
-
-                    for (Employee employee :
-                            employees) {
-                        projectInfo.append(employee.toString());
-                        projectInfo.append('\n');
+                        int progress = project.getProgressPercent();
+                        int maxpr = projectProgress.getMax();
+                        projectProgress.setProgress(progress);
                     }
 
                     handler.post(() -> {
-                        text1.setText(projectInfo.toString());
-                        text2.setText(
-                                String.format("balance:%d\nyear:%4d\nmonth:%2d\nday:%2d",
-                                        balance,
-                                        calendar.getYear(),
-                                        calendar.getMonth(),
-                                        calendar.getDay()));
+                        text1.setText(String.format("%d/%02d/%4d", calendar.getMonth(), calendar.getDay(), calendar.getYear()));
+                        text2.setText(String.format("$%d", balance));
                     });
                 }
             }
@@ -199,6 +210,12 @@ public class GameThread extends Thread implements Parcelable {
         Log.d(TAG, "hireEmployee(String name, int skill, int salary)");
         synchronized (monitor) {
             employees.add(new Employee(name, skill, salary));
+            Map<String, Object> m = new HashMap<>();
+            m.put("Name", name);
+            m.put("Skill", skill);
+            m.put("Salary", salary);
+            employeesData.add(m);
+            adapter.notifyDataSetChanged();
         }
     }
 
@@ -207,6 +224,8 @@ public class GameThread extends Thread implements Parcelable {
         synchronized (monitor) {
             if (employees.size() > 0) {
                 employees.remove(0);
+                employeesData.remove(0);
+                adapter.notifyDataSetChanged();
             }
         }
     }
@@ -217,18 +236,24 @@ public class GameThread extends Thread implements Parcelable {
             if (project != null && project.isFinished()) {
                 projectsHistory.add(project);
                 project = null;
+                projectViewSwitcher.setDisplayedChild(0);
             }
         }
 
     }
 
-    public void startNewProject(String title, int workAmount) {
+    public void startNewProject(String title, int workAmount, int income) {
         Log.d(TAG, "startNewProject(String title, int workAmount)");
         synchronized (monitor) {
             if (project == null) {
-                project = new GameProject(title, workAmount);
+                project = new GameProject(title, workAmount, income);
+                projectName.setText(project.getTitle());
+                projectIncome.setText(String.format("$%d", project.getIncome()));
+                projectProgress.setProgress(0);
+                projectViewSwitcher.setDisplayedChild(1);
             }
         }
+
     }
 
     @Override

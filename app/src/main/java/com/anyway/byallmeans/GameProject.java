@@ -22,12 +22,14 @@ public class GameProject implements Parcelable {
     private int workTotal;
     private int workLeft;
     private boolean finished;
+    private int income;
 
-    public GameProject(String title, int workTotal) {
+    public GameProject(String title, int workTotal, int income) {
         Log.d(TAG, "GameProject: created new object");
         this.title = title;
         this.workLeft = workTotal;
         this.workTotal = workTotal;
+        this.income = income;
     }
 
     protected GameProject(Parcel in) {
@@ -36,6 +38,10 @@ public class GameProject implements Parcelable {
         workTotal = in.readInt();
         workLeft = in.readInt();
         finished = in.readByte() != 0x00;
+    }
+
+    public int getIncome() {
+        return income;
     }
 
     public String getTitle() {
@@ -66,6 +72,10 @@ public class GameProject implements Parcelable {
             workLeft = 0;
             finished = true;
         }
+    }
+
+    public int getProgressPercent() {
+        return (int) (getProgress() * 100);
     }
 
     public float getProgress() {

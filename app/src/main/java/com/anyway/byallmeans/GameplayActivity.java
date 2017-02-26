@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.RadioGroup;
+import android.widget.ViewFlipper;
 
 import java.util.Random;
 
@@ -12,6 +14,8 @@ public class GameplayActivity extends Activity {
     private static final String KEY_GAME_THREAD = "GAME_THREAD";
     private static final String TAG = "GameplayActivity";
     GameThread gameThread;
+    ViewFlipper viewFlipper;
+    RadioGroup radioGroup;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -77,42 +81,45 @@ public class GameplayActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gameplay);
 
-        Button button1 = (Button) findViewById(R.id.button1);
-        Button button2 = (Button) findViewById(R.id.button2);
-        Button button3 = (Button) findViewById(R.id.button3);
+        viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
+        viewFlipper.setDisplayedChild(1);
+
+        radioGroup = (RadioGroup) findViewById(R.id.radioGroup);
+        radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
+
+            switch (checkedId) {
+                case R.id.radioInfo:
+                    viewFlipper.setDisplayedChild(0);
+                    break;
+                case R.id.radioStaff:
+                    viewFlipper.setDisplayedChild(1);
+                    break;
+                case R.id.radioBank:
+                    viewFlipper.setDisplayedChild(2);
+                    break;
+            }
+        });
+
         Button button4 = (Button) findViewById(R.id.button4);
         Button button5 = (Button) findViewById(R.id.button5);
-        Button newProject = (Button) findViewById(R.id.buttonNewProject);
         Button acceptProject = (Button) findViewById(R.id.buttonAcceptProject);
         Button hireEmployee = (Button) findViewById(R.id.hireEmployee);
         Button fireEmployee = (Button) findViewById(R.id.fireEmployee);
 
-        button1.setText("stop");
-        button2.setText("start");
-        button3.setText("x1");
-        button4.setText("x2");
-        button5.setText("x4");
-        newProject.setText("New project");
+        button4.setText("stop");
+        button5.setText("start");
         acceptProject.setText("Delete project");
         hireEmployee.setText("Hire employee");
         fireEmployee.setText("Fire employee");
 
-        button1.setOnClickListener(e -> gameThread.pause());
-        button2.setOnClickListener(e -> gameThread.unpause());
-        button3.setOnClickListener(e -> gameThread.setSpeed(GameThread.GameSpeed.NORMAL));
-        button4.setOnClickListener(e -> gameThread.setSpeed(GameThread.GameSpeed.FAST));
-        button5.setOnClickListener(e -> gameThread.setSpeed(GameThread.GameSpeed.FASTEST));
-        newProject.setOnClickListener(e -> {
-            String[] titles = {"Call of Duty", "SERZH", "TRiTPO", "MATAN", "Gradle", "Android Studio"};
-            Random rand = new Random();
-            gameThread.startNewProject(titles[rand.nextInt(6)], rand.nextInt(300) + 100);
-        });
+        button4.setOnClickListener(e -> gameThread.pause());
+        button5.setOnClickListener(e -> gameThread.unpause());
         acceptProject.setOnClickListener(e -> gameThread.acceptProject());
 
         hireEmployee.setOnClickListener(e -> {
             String[] names = {"Vasya", "Petya", "Kostya", "Pavel"};
             Random rand = new Random();
-            gameThread.hireEmployee(names[rand.nextInt(4)], rand.nextInt(10), rand.nextInt(2000));
+            gameThread.hireEmployee(names[rand.nextInt(4)], rand.nextInt(8), rand.nextInt(1500));
         });
         fireEmployee.setOnClickListener(e -> gameThread.fireEmployee());
 
