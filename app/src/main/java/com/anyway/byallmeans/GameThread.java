@@ -164,9 +164,12 @@ public class GameThread extends Thread implements Parcelable {
                             workToDo += employee.work();
                         }
                         project.doWork(workToDo);
-                        int progress = project.getProgressPercent();
-                        int maxpr = projectProgress.getMax();
-                        projectProgress.setProgress(progress);
+                        projectProgress.setProgress(project.getProgressPercent());
+
+                        if (project.isFinished()) {
+                            acceptProject();
+                        }
+
                     }
 
                     handler.post(() -> {
@@ -232,28 +235,26 @@ public class GameThread extends Thread implements Parcelable {
 
     public void acceptProject() {
         Log.d(TAG, "acceptProject()");
-        synchronized (monitor) {
-            if (project != null && project.isFinished()) {
-                projectsHistory.add(project);
-                project = null;
-                projectViewSwitcher.setDisplayedChild(0);
-            }
+        if (project != null && project.isFinished()) {
+            balance += project.getIncome();
+            projectsHistory.add(project);
+            project = null;
+            handler.post(() -> projectViewSwitcher.setDisplayedChild(0));
         }
+
 
     }
 
     public void startNewProject(String title, int workAmount, int income) {
         Log.d(TAG, "startNewProject(String title, int workAmount)");
-        synchronized (monitor) {
-            if (project == null) {
-                project = new GameProject(title, workAmount, income);
-                projectName.setText(project.getTitle());
-                projectIncome.setText(String.format("$%d", project.getIncome()));
-                projectProgress.setProgress(0);
-                projectViewSwitcher.setDisplayedChild(1);
-            }
-        }
+        if (project == null) {
+            project = new GameProject(title, workAmount, income);
+            projectName.setText(project.getTitle());
+            projectIncome.setText(String.format("$%d", project.getIncome()));
+            projectProgress.setProgress(0);
+            projectViewSwitcher.setDisplayedChild(1);
 
+        }
     }
 
     @Override
