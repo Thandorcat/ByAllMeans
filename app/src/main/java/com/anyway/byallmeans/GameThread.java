@@ -33,6 +33,7 @@ public class GameThread extends Thread implements Parcelable {
     private static final String TAG = "GameThread";
     private final Object monitor;
     ArrayList<Map<String, Object>> employeesData;
+    SimpleAdapter adapter;
     private int tickerMonth;
     private int tickerWeek;
     private GameProject project;
@@ -50,8 +51,6 @@ public class GameThread extends Thread implements Parcelable {
     private ProgressBar projectProgress;
     private TextView startNewProjectTextView;
     private GameSpeed speed;
-    private SimpleAdapter adapter;
-
     private Handler handler;
 
     public GameThread() {
@@ -222,12 +221,12 @@ public class GameThread extends Thread implements Parcelable {
         }
     }
 
-    public void fireEmployee() {
+    public void fireEmployee(int position) {
         Log.d(TAG, "fireEmployee()");
         synchronized (monitor) {
-            if (employees.size() > 0) {
-                employees.remove(0);
-                employeesData.remove(0);
+            if (employees.size() > position) {
+                employees.remove(position);
+                employeesData.remove(position);
                 adapter.notifyDataSetChanged();
             }
         }

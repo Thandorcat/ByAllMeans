@@ -6,12 +6,9 @@
     </style>
 
     <style name="ButtonWhite">
-        <item name="android:background">
-            @drawable/button_white
-        </item>
-        <item name="android:textColor">
-            @drawable/radio_button_text_color_selector
-        </item>
+        <item name="android:background">@drawable/button_white</item>
+        <item name="android:textColor">@drawable/radio_button_text_color_selector</item>
+        <item name="android:alpha">0.9</item>
     </style>
 
 </resources>

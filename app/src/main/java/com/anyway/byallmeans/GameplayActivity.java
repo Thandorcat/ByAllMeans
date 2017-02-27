@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.RadioGroup;
 import android.widget.ViewFlipper;
 
@@ -103,23 +104,12 @@ public class GameplayActivity extends Activity {
 
         Button button4 = (Button) findViewById(R.id.button4);
         Button button5 = (Button) findViewById(R.id.button5);
-        Button hireEmployee = (Button) findViewById(R.id.hireEmployee);
-        Button fireEmployee = (Button) findViewById(R.id.fireEmployee);
 
         button4.setText("STOP");
         button5.setText("START");
-        hireEmployee.setText("Hire employee");
-        fireEmployee.setText("Fire employee");
 
         button4.setOnClickListener(e -> gameThread.pause());
         button5.setOnClickListener(e -> gameThread.unpause());
-
-        hireEmployee.setOnClickListener(e -> {
-            String[] names = {"Vasya", "Petya", "Kostya", "Pavel"};
-            Random rand = new Random();
-            gameThread.hireEmployee(names[rand.nextInt(4)], rand.nextInt(8), rand.nextInt(1500));
-        });
-        fireEmployee.setOnClickListener(e -> gameThread.fireEmployee());
 
         if (savedInstanceState == null) {
             Log.d(TAG, "onCreate: creating new GameThread object");
@@ -133,5 +123,12 @@ public class GameplayActivity extends Activity {
         String[] names = {"Vasya", "Petya", "Kostya", "Pavel"};
         Random rand = new Random();
         gameThread.hireEmployee(names[rand.nextInt(4)], rand.nextInt(8), rand.nextInt(1500));
+    }
+
+    public void fireOnClick(View view) {
+        ListView list = (ListView) findViewById(R.id.employeesListView);
+        int position = list.getPositionForView(view);
+        Log.d(TAG, "fireOnClick: position = " + position);
+        gameThread.fireEmployee(position);
     }
 }
