@@ -12,7 +12,7 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/employeeView_NameTextView"
+            android:id="@+id/employeeViewNameTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -21,9 +21,10 @@
             android:textSize="24sp" />
 
         <ImageView
-            android:id="@+id/imageView2"
+            android:id="@+id/employeeViewFireImageView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:elevation="0dp"
             android:onClick="fireOnClick"
             android:src="@android:drawable/ic_delete" />
 
@@ -35,7 +36,7 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/employeeView_skillTextView"
+            android:id="@+id/employeeViewSkillTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="SKILL"
@@ -43,7 +44,7 @@
             android:textSize="16sp" />
 
         <TextView
-            android:id="@+id/employeeView_salaryTextView"
+            android:id="@+id/employeeViewSalaryTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="right"
