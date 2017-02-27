@@ -10,7 +10,8 @@
         android:id="@+id/background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@android:drawable/screen_background_dark_transparent" />
+        android:scaleType="fitXY"
+        android:src="@drawable/background" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -137,7 +138,9 @@
         <ViewFlipper
             android:id="@+id/viewFlipper"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:inAnimation="@anim/slide_in"
+            android:outAnimation="@anim/slide_out">
 
             <ScrollView
                 style="@android:style/Widget.Holo.ScrollView"
@@ -149,42 +152,44 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
                     android:orientation="vertical">
 
                     <Button
                         android:id="@+id/button4"
+                        style="@style/ButtonWhite"
                         android:layout_width="match_parent"
                         android:layout_height="60dp"
                         android:elevation="0dp"
-                        android:text="Button" />
+                        android:text="Button"
+                        android:textSize="18sp" />
 
                     <Button
                         android:id="@+id/button5"
+                        style="@style/ButtonWhite"
                         android:layout_width="match_parent"
                         android:layout_height="60dp"
                         android:elevation="0dp"
-                        android:text="Button" />
-
-                    <Button
-                        android:id="@+id/buttonAcceptProject"
-                        android:layout_width="match_parent"
-                        android:layout_height="60dp"
-                        android:elevation="0dp"
-                        android:text="Button" />
+                        android:text="Button"
+                        android:textSize="18sp" />
 
                     <Button
                         android:id="@+id/hireEmployee"
+                        style="@style/ButtonWhite"
                         android:layout_width="match_parent"
                         android:layout_height="60dp"
                         android:elevation="0dp"
-                        android:text="Button" />
+                        android:text="Button"
+                        android:textSize="18sp" />
 
                     <Button
                         android:id="@+id/fireEmployee"
+                        style="@style/ButtonWhite"
                         android:layout_width="match_parent"
                         android:layout_height="60dp"
                         android:elevation="0dp"
-                        android:text="Button" />
+                        android:text="Button"
+                        android:textSize="18sp" />
 
                 </LinearLayout>
             </ScrollView>
@@ -197,10 +202,22 @@
                 <ListView
                     android:id="@+id/employeesListView"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_margin="5dp"
                     android:overScrollMode="never"
-                    android:scrollbarStyle="insideInset" />
+                    android:scrollbars="none" />
+
+                <Button
+                    android:id="@+id/hire"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/button_blue"
+                    android:onClick="hireOnClick"
+                    android:padding="10dp"
+                    android:text="HIRE EMPLOYEE"
+                    android:textColor="@drawable/button_blue_text_color"
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -212,8 +229,9 @@
                     android:id="@+id/imageView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:scaleType="fitXY"
-                    android:src="@mipmap/ic_launcher" />
+                    android:layout_margin="5dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/in_progress" />
             </LinearLayout>
 
         </ViewFlipper>

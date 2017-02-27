@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.RadioGroup;
 import android.widget.ViewFlipper;
@@ -102,19 +103,16 @@ public class GameplayActivity extends Activity {
 
         Button button4 = (Button) findViewById(R.id.button4);
         Button button5 = (Button) findViewById(R.id.button5);
-        Button acceptProject = (Button) findViewById(R.id.buttonAcceptProject);
         Button hireEmployee = (Button) findViewById(R.id.hireEmployee);
         Button fireEmployee = (Button) findViewById(R.id.fireEmployee);
 
-        button4.setText("stop");
-        button5.setText("start");
-        acceptProject.setText("Delete project");
+        button4.setText("STOP");
+        button5.setText("START");
         hireEmployee.setText("Hire employee");
         fireEmployee.setText("Fire employee");
 
         button4.setOnClickListener(e -> gameThread.pause());
         button5.setOnClickListener(e -> gameThread.unpause());
-        acceptProject.setOnClickListener(e -> gameThread.acceptProject());
 
         hireEmployee.setOnClickListener(e -> {
             String[] names = {"Vasya", "Petya", "Kostya", "Pavel"};
@@ -129,5 +127,11 @@ public class GameplayActivity extends Activity {
             gameThread.configureUI(this, new Handler());
             gameThread.start();
         }
+    }
+
+    public void hireOnClick(View view) {
+        String[] names = {"Vasya", "Petya", "Kostya", "Pavel"};
+        Random rand = new Random();
+        gameThread.hireEmployee(names[rand.nextInt(4)], rand.nextInt(8), rand.nextInt(1500));
     }
 }

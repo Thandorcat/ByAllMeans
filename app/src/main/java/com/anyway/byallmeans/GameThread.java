@@ -215,8 +215,8 @@ public class GameThread extends Thread implements Parcelable {
             employees.add(new Employee(name, skill, salary));
             Map<String, Object> m = new HashMap<>();
             m.put("Name", name);
-            m.put("Skill", skill);
-            m.put("Salary", salary);
+            m.put("Skill", "Skill: " + skill);
+            m.put("Salary", "$" + salary + "/month");
             employeesData.add(m);
             adapter.notifyDataSetChanged();
         }
