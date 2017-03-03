@@ -1,120 +1,65 @@
 package com.anyway.byallmeans;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Handler;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.Log;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-public class GameThread extends Thread implements Parcelable {
+import static java.util.Calendar.DAY_OF_MONTH;
+import static java.util.Calendar.MONTH;
+import static java.util.Calendar.YEAR;
 
-    public static final Parcelable.Creator<GameThread> CREATOR = new Parcelable.Creator<GameThread>() {
-        @Override
-        public GameThread createFromParcel(Parcel in) {
-            return new GameThread(in);
-        }
+public class GameThread extends Thread {
 
-        @Override
-        public GameThread[] newArray(int size) {
-            return new GameThread[size];
-        }
-    };
     private static final String TAG = "GameThread";
     private final Object monitor;
-    ArrayList<Map<String, Object>> employeesData;
+    private ArrayList<Map<String, Object>> employeesData;
+    private SimpleAdapter adapter;
     private int tickerMonth;
-    private int tickerWeek;
     private GameProject project;
     private List<GameProject> projectsHistory;
     private List<Employee> employees;
     private long balance;
-    private Calendar calendar;
-    private TextView text1;
-    private TextView text2;
+    private GregorianCalendar calendar;
     private boolean running;
     private GameState state;
-    private ViewSwitcher projectViewSwitcher;
-    private TextView projectName;
-    private TextView projectIncome;
-    private ProgressBar projectProgress;
-    private TextView startNewProjectTextView;
     private GameSpeed speed;
-    private SimpleAdapter adapter;
 
-    private Handler handler;
+    private UIHolder uiHolder;
 
     public GameThread() {
         Log.d(TAG, "GameThread()");
         state = GameState.READY;
-        speed = GameSpeed.NORMAL;
+        speed = GameSpeed.FASTEST;
 
         running = true;
         monitor = new Object();
-        calendar = new Calendar();
+        calendar = new GregorianCalendar(1990, 1, 1);
+        uiHolder = new UIHolder();
         projectsHistory = new ArrayList<>();
         employees = new ArrayList<>();
+        employeesData = new ArrayList<>();
 
-        //TODO implement doStart() method instead
         state = GameState.RUNNING;
         balance = 999999;
-        employeesData = new ArrayList<>();
-    }
-
-    protected GameThread(Parcel in) {
-        Log.d(TAG, "GameThread: loaded from Parcel");
-        monitor = new Object();
-        tickerMonth = in.readInt();
-        tickerWeek = in.readInt();
-        project = (GameProject) in.readValue(GameProject.class.getClassLoader());
-        if (in.readByte() == 0x01) {
-            projectsHistory = new ArrayList<>();
-            in.readList(projectsHistory, GameProject.class.getClassLoader());
-        } else {
-            projectsHistory = null;
-        }
-        if (in.readByte() == 0x01) {
-            employees = new ArrayList<>();
-            in.readList(employees, Employee.class.getClassLoader());
-        } else {
-            employees = null;
-        }
-        balance = in.readLong();
-        calendar = (Calendar) in.readValue(Calendar.class.getClassLoader());
-        running = in.readByte() != 0x00;
-        state = (GameState) in.readValue(GameState.class.getClassLoader());
-        speed = (GameSpeed) in.readValue(GameSpeed.class.getClassLoader());
     }
 
     public void configureUI(Activity activity, Handler handler) {
-        this.handler = handler;
-        text1 = (TextView) activity.findViewById(R.id.textDate);
-        text2 = (TextView) activity.findViewById(R.id.textBalance);
-        ListView listView = (ListView) activity.findViewById(R.id.employeesListView);
-        projectViewSwitcher = (ViewSwitcher) activity.findViewById(R.id.project_view_switcher);
-        projectName = (TextView) activity.findViewById(R.id.project_name);
-        projectIncome = (TextView) activity.findViewById(R.id.project_income);
-        projectProgress = (ProgressBar) activity.findViewById(R.id.project_progress);
-        startNewProjectTextView = (TextView) activity.findViewById(R.id.new_project_text_view);
-        startNewProjectTextView.setOnClickListener(v -> {
-            String[] titles = {"Call of Duty", "SERZH", "TRiTPO", "MATAN", "Gradle", "Android Studio"};
-            Random rand = new Random();
-            startNewProject(titles[rand.nextInt(6)], rand.nextInt(300) + 100, rand.nextInt(3000) + 1000);
-        });
-        adapter = new SimpleAdapter(activity, employeesData, R.layout.employee_view, new String[]{"Name", "Skill", "Salary"}, new int[]{R.id.employeeView_NameTextView, R.id.employeeView_skillTextView, R.id.employeeView_salaryTextView});
-        listView.setAdapter(adapter);
+        uiHolder.configure(activity, handler);
     }
-
 
     public void setSpeed(GameSpeed speed) {
         Log.d(TAG, "setSpeed(GameSpeed speed)");
@@ -145,17 +90,15 @@ public class GameThread extends Thread implements Parcelable {
 
                 if (state == GameState.RUNNING) {
 
-                    calendar.tick();
+                    calendar.add(DAY_OF_MONTH, 1);
 
-                    tickerMonth++;
-                    if (tickerMonth == 7) {
-                        tickerMonth = 0;
+                    int day = calendar.get(DAY_OF_MONTH);
+                    if (day == 1) {
                         for (Employee employee :
                                 employees) {
                             balance -= employee.getSalary();
                         }
                     }
-
 
                     if (project != null) {
                         workToDo = 0;
@@ -164,7 +107,6 @@ public class GameThread extends Thread implements Parcelable {
                             workToDo += employee.work();
                         }
                         project.doWork(workToDo);
-                        projectProgress.setProgress(project.getProgressPercent());
 
                         if (project.isFinished()) {
                             acceptProject();
@@ -172,10 +114,7 @@ public class GameThread extends Thread implements Parcelable {
 
                     }
 
-                    handler.post(() -> {
-                        text1.setText(String.format("%d/%02d/%4d", calendar.getMonth(), calendar.getDay(), calendar.getYear()));
-                        text2.setText(String.format("$%d", balance));
-                    });
+                    uiHolder.update();
                 }
             }
 
@@ -187,14 +126,13 @@ public class GameThread extends Thread implements Parcelable {
                 try {
                     sleep(timeToSleep);
                 } catch (InterruptedException e) {
-                    Log.e(this.TAG, "run: sleep: interrupted", e);
+                    Log.e(TAG, "run: sleep: interrupted", e);
                 }
             }
         }
     }
 
     public void pause() {
-        Log.d(TAG, "pause()");
         synchronized (monitor) {
             state = GameState.PAUSED;
         }
@@ -202,7 +140,6 @@ public class GameThread extends Thread implements Parcelable {
     }
 
     public void unpause() {
-        Log.d(TAG, "unpause()");
         synchronized (monitor) {
             state = GameState.RUNNING;
         }
@@ -210,7 +147,6 @@ public class GameThread extends Thread implements Parcelable {
     }
 
     public void hireEmployee(String name, int skill, int salary) {
-        Log.d(TAG, "hireEmployee(String name, int skill, int salary)");
         synchronized (monitor) {
             employees.add(new Employee(name, skill, salary));
             Map<String, Object> m = new HashMap<>();
@@ -222,80 +158,48 @@ public class GameThread extends Thread implements Parcelable {
         }
     }
 
-    public void fireEmployee() {
-        Log.d(TAG, "fireEmployee()");
+    public void fireEmployee(int position) {
         synchronized (monitor) {
-            if (employees.size() > 0) {
-                employees.remove(0);
-                employeesData.remove(0);
+            if (employees.size() > position) {
+                employees.remove(position);
+                employeesData.remove(position);
                 adapter.notifyDataSetChanged();
             }
         }
     }
 
     public void acceptProject() {
-        Log.d(TAG, "acceptProject()");
-        if (project != null && project.isFinished()) {
-            balance += project.getIncome();
-            projectsHistory.add(project);
-            project = null;
-            handler.post(() -> projectViewSwitcher.setDisplayedChild(0));
+        synchronized (monitor) {
+            if (project != null && project.isFinished()) {
+                uiHolder.showMessage("Project " + project.getTitle() + " finished");
+                balance += project.getIncome();
+                projectsHistory.add(project);
+                project = null;
+                uiHolder.switchProjectView(0);
+            }
         }
-
-
     }
 
     public void startNewProject(String title, int workAmount, int income) {
-        Log.d(TAG, "startNewProject(String title, int workAmount)");
-        if (project == null) {
-            project = new GameProject(title, workAmount, income);
-            projectName.setText(project.getTitle());
-            projectIncome.setText(String.format("$%d", project.getIncome()));
-            projectProgress.setProgress(0);
-            projectViewSwitcher.setDisplayedChild(1);
-
+        synchronized (monitor) {
+            if (project == null) {
+                project = new GameProject(title, workAmount, income);
+                uiHolder.updateProjectInfo();
+                uiHolder.switchProjectView(1);
+                uiHolder.showMessage("Project " + project.getTitle() + " started");
+            }
         }
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        Log.d(TAG, "writeToParcel: saving to Parcel");
-        dest.writeInt(tickerMonth);
-        dest.writeInt(tickerWeek);
-        dest.writeValue(project);
-        if (projectsHistory == null) {
-            dest.writeByte((byte) (0x00));
-        } else {
-            dest.writeByte((byte) (0x01));
-            dest.writeList(projectsHistory);
-        }
-        if (employees == null) {
-            dest.writeByte((byte) (0x00));
-        } else {
-            dest.writeByte((byte) (0x01));
-            dest.writeList(employees);
-        }
-        dest.writeLong(balance);
-        dest.writeValue(calendar);
-        dest.writeByte((byte) (running ? 0x01 : 0x00));
-        dest.writeValue(state);
-        dest.writeValue(speed);
     }
 
     public enum GameState {
-        READY, RUNNING, PAUSED, FINISHED
+        READY, RUNNING, PAUSED,
     }
 
     public enum GameSpeed {
         NORMAL, FAST, FASTEST;
 
         public int value() {
-            int returnValue = 0;
+            int returnValue;
             switch (GameSpeed.this) {
                 case NORMAL:
                     returnValue = 2;
@@ -311,6 +215,69 @@ public class GameThread extends Thread implements Parcelable {
 
             }
             return returnValue;
+        }
+    }
+
+    private class UIHolder {
+        private TextView dateTextView;
+        private TextView balanceTextView;
+        private ViewSwitcher projectViewSwitcher;
+        private TextView projectNameTextView;
+        private TextView projectIncomeTextView;
+        private ProgressBar projectProgressProgressBar;
+        private TextView startNewProjectTextView;
+
+        private Handler handler;
+        private Context context;
+
+        public void configure(Activity activity, Handler handler) {
+            this.handler = handler;
+            context = activity;
+
+            dateTextView = (TextView) activity.findViewById(R.id.textDate);
+            balanceTextView = (TextView) activity.findViewById(R.id.textBalance);
+            ListView listView = (ListView) activity.findViewById(R.id.employeesListView);
+            projectViewSwitcher = (ViewSwitcher) activity.findViewById(R.id.project_view_switcher);
+            projectNameTextView = (TextView) activity.findViewById(R.id.project_name);
+            projectIncomeTextView = (TextView) activity.findViewById(R.id.project_income);
+            projectProgressProgressBar = (ProgressBar) activity.findViewById(R.id.project_progress);
+            startNewProjectTextView = (TextView) activity.findViewById(R.id.new_project_text_view);
+            startNewProjectTextView.setOnClickListener(v -> {
+                String[] titles = {"Call of Duty", "SERZH", "TRiTPO", "MATAN", "Gradle", "Android Studio"};
+                Random rand = new Random();
+                startNewProject(titles[rand.nextInt(6)], rand.nextInt(300) + 100, rand.nextInt(3000) + 1000);
+            });
+            adapter = new SimpleAdapter(activity, employeesData, R.layout.employee_view, new String[]{"Name", "Skill", "Salary"}, new int[]{R.id.employeeViewNameTextView, R.id.employeeViewSkillTextView, R.id.employeeViewSalaryTextView});
+            listView.setAdapter(adapter);
+        }
+
+        private void showMessage(String s) {
+            handler.post(() -> Toast.makeText(context, s, Toast.LENGTH_SHORT).show());
+        }
+
+        public void update() {
+            if (project != null) {
+                int progressValue = project.getProgressPercent();
+                handler.post(() -> projectProgressProgressBar.setProgress(progressValue));
+            }
+
+            String dateText = String.format("%d/%02d/%4d", calendar.get(MONTH), calendar.get(DAY_OF_MONTH), calendar.get(YEAR));
+            String balanceText = String.format("$%d", balance);
+
+            handler.post(() -> {
+                dateTextView.setText(dateText);
+                balanceTextView.setText(balanceText);
+            });
+        }
+
+        public void switchProjectView(int i) {
+            handler.post(() -> projectViewSwitcher.setDisplayedChild(i));
+        }
+
+        public void updateProjectInfo() {
+            projectNameTextView.setText(project.getTitle());
+            projectIncomeTextView.setText(String.format("$%d", project.getIncome()));
+            projectProgressProgressBar.setProgress(0);
         }
     }
 }
