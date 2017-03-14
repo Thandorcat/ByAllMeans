@@ -69,9 +69,11 @@ public class GameplayActivity extends Activity {
     }
 
     public void hireOnClick(View view) {
-        String[] names = {"Vasya", "Petya", "Kostya", "Pavel"};
+        String[] names = {"Vasya", "Petya", "Kostya", "Pavel","Sanya","Jenia"};
         Random rand = new Random();
-        gameThread.hireEmployee(names[rand.nextInt(4)], rand.nextInt(8), rand.nextInt(1500));
+        int skill = rand.nextInt(10)+1;
+        int salary = skill*100+skill*(rand.nextInt(50));
+        gameThread.hireEmployee(names[rand.nextInt(6)], skill, salary);
     }
 
     public void fireOnClick(View view) {

@@ -22,6 +22,7 @@ public class Employee {
     public String getName() {
         return name;
     }
+    public void addSkill() { skill++;}
 
     @Override
     public String toString() {

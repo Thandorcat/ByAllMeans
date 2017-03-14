@@ -110,6 +110,10 @@ public class GameThread extends Thread {
 
                         if (project.isFinished()) {
                             acceptProject();
+                            for (Employee employee :
+                                    employees) {
+                                employee.addSkill();
+                            }
                         }
 
                     }
@@ -245,7 +249,9 @@ public class GameThread extends Thread {
             startNewProjectTextView.setOnClickListener(v -> {
                 String[] titles = {"Call of Duty", "SERZH", "TRiTPO", "MATAN", "Gradle", "Android Studio"};
                 Random rand = new Random();
-                startNewProject(titles[rand.nextInt(6)], rand.nextInt(300) + 100, rand.nextInt(3000) + 1000);
+                int work = rand.nextInt(1000) + 100;
+                int income = work*10+rand.nextInt(5)*work;
+                startNewProject(titles[rand.nextInt(6)], work, income);
             });
             adapter = new SimpleAdapter(activity, employeesData, R.layout.employee_view, new String[]{"Name", "Skill", "Salary"}, new int[]{R.id.employeeViewNameTextView, R.id.employeeViewSkillTextView, R.id.employeeViewSalaryTextView});
             listView.setAdapter(adapter);
