@@ -12,8 +12,8 @@ import android.widget.ViewFlipper;
 import java.util.Random;
 
 public class GameplayActivity extends Activity {
+    private static final String TAG = "GameplayActivity";
     private GameThread gameThread;
-
     private ListView employeeList;
 
     @Override
@@ -79,5 +79,10 @@ public class GameplayActivity extends Activity {
     public void fireOnClick(View view) {
         int position = employeeList.getPositionForView(view);
         gameThread.fireEmployee(position);
+    }
+
+    public void sendToTraining(View view) {
+        int position = employeeList.getPositionForView(view);
+        gameThread.sendToTraining(position);
     }
 }

@@ -190,6 +190,14 @@
                     android:overScrollMode="never"
                     android:scrollbars="none" />
 
+                <ListView
+                    android:id="@+id/employeesUnavailableListView"
+                    android:layout_width="match_parent"
+                    android:layout_height="130dp"
+                    android:layout_margin="5dp"
+                    android:overScrollMode="never"
+                    android:scrollbars="none" />
+
                 <Button
                     android:id="@+id/hire"
                     android:layout_width="match_parent"

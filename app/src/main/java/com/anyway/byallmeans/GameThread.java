@@ -13,9 +13,7 @@ import android.widget.ViewSwitcher;
 
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 import static java.util.Calendar.DAY_OF_MONTH;
@@ -26,12 +24,11 @@ public class GameThread extends Thread {
 
     private static final String TAG = "GameThread";
     private final Object monitor;
-    private ArrayList<Map<String, Object>> employeesData;
+    private EmployeeManager employeeManager;
     private SimpleAdapter adapter;
-    private int tickerMonth;
+    private SimpleAdapter adapter2;
     private GameProject project;
     private List<GameProject> projectsHistory;
-    private List<Employee> employees;
     private long balance;
     private GregorianCalendar calendar;
     private boolean running;
@@ -47,12 +44,10 @@ public class GameThread extends Thread {
 
         running = true;
         monitor = new Object();
-        calendar = new GregorianCalendar(1990, 1, 1);
+        calendar = new GregorianCalendar(1990, 0, 1);
         uiHolder = new UIHolder();
         projectsHistory = new ArrayList<>();
-        employees = new ArrayList<>();
-        employeesData = new ArrayList<>();
-
+        employeeManager = new EmployeeManager();
         state = GameState.RUNNING;
         balance = 999999;
     }
@@ -95,7 +90,7 @@ public class GameThread extends Thread {
                     int day = calendar.get(DAY_OF_MONTH);
                     if (day == 1) {
                         for (Employee employee :
-                                employees) {
+                                employeeManager.getAllEmployees()) {
                             balance -= employee.getSalary();
                         }
                     }
@@ -103,7 +98,7 @@ public class GameThread extends Thread {
                     if (project != null) {
                         workToDo = 0;
                         for (Employee employee :
-                                employees) {
+                                employeeManager.getAvailableEmployees()) {
                             workToDo += employee.work();
                         }
                         project.doWork(workToDo);
@@ -111,12 +106,14 @@ public class GameThread extends Thread {
                         if (project.isFinished()) {
                             acceptProject();
                             for (Employee employee :
-                                    employees) {
+                                    employeeManager.getAvailableEmployees()) {
                                 employee.addSkill();
                             }
                         }
 
                     }
+
+                    employeeManager.updateTraining();
 
                     uiHolder.update();
                 }
@@ -152,21 +149,22 @@ public class GameThread extends Thread {
 
     public void hireEmployee(String name, int skill, int salary) {
         synchronized (monitor) {
-            employees.add(new Employee(name, skill, salary));
-            Map<String, Object> m = new HashMap<>();
-            m.put("Name", name);
-            m.put("Skill", "Skill: " + skill);
-            m.put("Salary", "$" + salary + "/month");
-            employeesData.add(m);
+            employeeManager.add(new Employee(name, skill, salary));
             adapter.notifyDataSetChanged();
         }
     }
 
-    public void fireEmployee(int position) {
+    public void sendToTraining(int index) {
+        int duration = new Random().nextInt(30) + 30;
+        employeeManager.sendToTraining(index, duration);
+        adapter.notifyDataSetChanged();
+        adapter2.notifyDataSetChanged();
+    }
+
+    public void fireEmployee(int index) {
         synchronized (monitor) {
-            if (employees.size() > position) {
-                employees.remove(position);
-                employeesData.remove(position);
+            if (employeeManager.getAvailableEmployees().size() > index) {
+                employeeManager.remove(index);
                 adapter.notifyDataSetChanged();
             }
         }
@@ -241,6 +239,7 @@ public class GameThread extends Thread {
             dateTextView = (TextView) activity.findViewById(R.id.textDate);
             balanceTextView = (TextView) activity.findViewById(R.id.textBalance);
             ListView listView = (ListView) activity.findViewById(R.id.employeesListView);
+            ListView listView2 = (ListView) activity.findViewById(R.id.employeesUnavailableListView);
             projectViewSwitcher = (ViewSwitcher) activity.findViewById(R.id.project_view_switcher);
             projectNameTextView = (TextView) activity.findViewById(R.id.project_name);
             projectIncomeTextView = (TextView) activity.findViewById(R.id.project_income);
@@ -250,11 +249,13 @@ public class GameThread extends Thread {
                 String[] titles = {"Call of Duty", "SERZH", "TRiTPO", "MATAN", "Gradle", "Android Studio"};
                 Random rand = new Random();
                 int work = rand.nextInt(1000) + 100;
-                int income = work*10+rand.nextInt(5)*work;
+                int income = work * 10 + (rand.nextInt(5) + 1) * work;
                 startNewProject(titles[rand.nextInt(6)], work, income);
             });
-            adapter = new SimpleAdapter(activity, employeesData, R.layout.employee_view, new String[]{"Name", "Skill", "Salary"}, new int[]{R.id.employeeViewNameTextView, R.id.employeeViewSkillTextView, R.id.employeeViewSalaryTextView});
+            adapter = new SimpleAdapter(activity, employeeManager.getAvailableEmployeesData(), R.layout.employee_view, new String[]{"Name", "Skill", "Salary"}, new int[]{R.id.employeeViewNameTextView, R.id.employeeViewSkillTextView, R.id.employeeViewSalaryTextView});
+            adapter2 = new SimpleAdapter(activity, employeeManager.getUnavailableEmployeesData(), R.layout.employee_view_unavailable, new String[]{"Name", "Skill", "Salary", "Days Left"}, new int[]{R.id.employeeViewNameTextView, R.id.employeeViewSkillTextView, R.id.employeeViewSalaryTextView, R.id.daysLeftTextView});
             listView.setAdapter(adapter);
+            listView2.setAdapter(adapter2);
         }
 
         private void showMessage(String s) {
@@ -267,12 +268,14 @@ public class GameThread extends Thread {
                 handler.post(() -> projectProgressProgressBar.setProgress(progressValue));
             }
 
-            String dateText = String.format("%d/%02d/%4d", calendar.get(MONTH), calendar.get(DAY_OF_MONTH), calendar.get(YEAR));
+            String dateText = String.format("%d/%02d/%4d", calendar.get(MONTH) + 1, calendar.get(DAY_OF_MONTH), calendar.get(YEAR));
             String balanceText = String.format("$%d", balance);
 
             handler.post(() -> {
                 dateTextView.setText(dateText);
                 balanceTextView.setText(balanceText);
+                adapter.notifyDataSetChanged();
+                adapter2.notifyDataSetChanged();
             });
         }
 

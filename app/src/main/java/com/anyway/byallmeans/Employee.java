@@ -4,11 +4,20 @@ public class Employee {
     private String name;
     private int skill;
     private int salary;
+    private int daysLeft;
 
     public Employee(String name, int skill, int salary) {
         this.name = name;
         this.skill = skill;
         this.salary = salary;
+    }
+
+    public int getDaysLeft() {
+        return daysLeft;
+    }
+
+    public void setDaysLeft(int daysLeft) {
+        this.daysLeft = daysLeft;
     }
 
     public int getSalary() {
@@ -35,6 +44,10 @@ public class Employee {
 
     public int getSkill() {
         return skill;
+    }
+
+    public void setSkill(int skill) {
+        this.skill = skill;
     }
 
     public int work() {
