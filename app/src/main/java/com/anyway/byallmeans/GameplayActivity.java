@@ -85,4 +85,14 @@ public class GameplayActivity extends Activity {
         int position = employeeList.getPositionForView(view);
         gameThread.sendToTraining(position);
     }
+
+    public void increaseSalary(View view) {
+        int position = employeeList.getPositionForView(view);
+        gameThread.increaseSalary(position);
+    }
+
+    public void decreaseSalary(View view) {
+        int position = employeeList.getPositionForView(view);
+        gameThread.decreaseSalary(position);
+    }
 }

@@ -105,10 +105,7 @@ public class GameThread extends Thread {
 
                         if (project.isFinished()) {
                             acceptProject();
-                            for (Employee employee :
-                                    employeeManager.getAvailableEmployees()) {
-                                employee.addSkill();
-                            }
+                            employeeManager.addSkill();
                         }
 
                     }
@@ -173,7 +170,6 @@ public class GameThread extends Thread {
     public void acceptProject() {
         synchronized (monitor) {
             if (project != null && project.isFinished()) {
-                uiHolder.showMessage("Project " + project.getTitle() + " finished");
                 balance += project.getIncome();
                 projectsHistory.add(project);
                 project = null;
@@ -188,9 +184,18 @@ public class GameThread extends Thread {
                 project = new GameProject(title, workAmount, income);
                 uiHolder.updateProjectInfo();
                 uiHolder.switchProjectView(1);
-                uiHolder.showMessage("Project " + project.getTitle() + " started");
             }
         }
+    }
+
+    public void increaseSalary(int position) {
+        int value = 10;
+        employeeManager.changeSalary(position, value);
+    }
+
+    public void decreaseSalary(int position) {
+        int value = -10;
+        employeeManager.changeSalary(position, value);
     }
 
     public enum GameState {

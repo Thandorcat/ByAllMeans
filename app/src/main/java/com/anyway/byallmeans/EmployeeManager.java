@@ -87,8 +87,21 @@ public class EmployeeManager {
                 employeesData.add(m);
                 i--;
             } else {
-                employeesUnavailableData.get(i).put("Days Left", e.getDaysLeft());
+                employeesUnavailableData.get(i).put("Days Left", "Days left: " + e.getDaysLeft());
             }
         }
+    }
+
+    public void addSkill() {
+        for (int i = 0; i < employees.size(); i++) {
+            employees.get(i).addSkill();
+            employeesData.get(i).put("Skill", employees.get(i).getSkill());
+        }
+    }
+
+    public void changeSalary(int position, int value) {
+        if (employees.get(position).getSalary() < 11 && value < 0) return;
+        employees.get(position).setSalary(employees.get(position).getSalary() + value);
+        employeesData.get(position).put("Salary", "$" + employees.get(position).getSalary() + "/month");
     }
 }

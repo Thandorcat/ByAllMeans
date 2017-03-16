@@ -53,4 +53,7 @@ public class Employee {
     public int work() {
         return skill;
     }
+
+    public void increaseSalary() {
+    }
 }
