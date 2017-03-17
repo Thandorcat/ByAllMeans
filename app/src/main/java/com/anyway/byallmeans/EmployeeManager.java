@@ -28,10 +28,10 @@ public class EmployeeManager {
         employeesData.add(m);
     }
 
-    public void sendToTraining(int index, int duration) {
+    public void sendToTraining(int index) {
         Employee e = employees.remove(index);
         employeesData.remove(index);
-
+        int duration = e.getSkill()*3;
         e.setDaysLeft(duration);
         employeesUnavailable.add(e);
         Map<String, Object> m = new HashMap<>();

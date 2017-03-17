@@ -44,12 +44,12 @@ public class GameThread extends Thread {
 
         running = true;
         monitor = new Object();
-        calendar = new GregorianCalendar(1990, 0, 1);
+        calendar = new GregorianCalendar(2017, 0, 1);
         uiHolder = new UIHolder();
         projectsHistory = new ArrayList<>();
         employeeManager = new EmployeeManager();
         state = GameState.RUNNING;
-        balance = 999999;
+        balance = 50000;
     }
 
     public void configureUI(Activity activity, Handler handler) {
@@ -153,7 +153,7 @@ public class GameThread extends Thread {
 
     public void sendToTraining(int index) {
         int duration = new Random().nextInt(30) + 30;
-        employeeManager.sendToTraining(index, duration);
+        employeeManager.sendToTraining(index);
         adapter.notifyDataSetChanged();
         adapter2.notifyDataSetChanged();
     }
@@ -189,12 +189,12 @@ public class GameThread extends Thread {
     }
 
     public void increaseSalary(int position) {
-        int value = 10;
+        int value = 50;
         employeeManager.changeSalary(position, value);
     }
 
     public void decreaseSalary(int position) {
-        int value = -10;
+        int value = -50;
         employeeManager.changeSalary(position, value);
     }
 
@@ -253,8 +253,8 @@ public class GameThread extends Thread {
             startNewProjectTextView.setOnClickListener(v -> {
                 String[] titles = {"Call of Duty", "SERZH", "TRiTPO", "MATAN", "Gradle", "Android Studio"};
                 Random rand = new Random();
-                int work = rand.nextInt(1000) + 100;
-                int income = work * 10 + (rand.nextInt(5) + 1) * work;
+                int work = rand.nextInt(1500) + 100;
+                int income = work * 8 + (rand.nextInt(5) + 1) * work;
                 startNewProject(titles[rand.nextInt(6)], work, income);
             });
             adapter = new SimpleAdapter(activity, employeeManager.getAvailableEmployeesData(), R.layout.employee_view, new String[]{"Name", "Skill", "Salary"}, new int[]{R.id.employeeViewNameTextView, R.id.employeeViewSkillTextView, R.id.employeeViewSalaryTextView});
