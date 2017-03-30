@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
@@ -34,6 +35,10 @@ public class GameThread extends Thread {
     private boolean running;
     private GameState state;
     private GameSpeed speed;
+
+    private Button betabutton;
+    private Button artbutton;
+    private Button revbutton;
 
     private UIHolder uiHolder;
 
@@ -251,12 +256,21 @@ public class GameThread extends Thread {
             projectProgressProgressBar = (ProgressBar) activity.findViewById(R.id.project_progress);
             startNewProjectTextView = (TextView) activity.findViewById(R.id.new_project_text_view);
             startNewProjectTextView.setOnClickListener(v -> {
-                String[] titles = {"Call of Duty", "SERZH", "TRiTPO", "MATAN", "Gradle", "Android Studio"};
+                String[] titles = {"Call of Duty", "SERZH Inc.", "TRiTPO", "MATAN", "Gradle", "Android Studio","Half-Life3","World of cats", "New PHP", "Doing nothing: 3"};
                 Random rand = new Random();
                 int work = rand.nextInt(1500) + 100;
-                int income = work * 8 + (rand.nextInt(5) + 1) * work;
-                startNewProject(titles[rand.nextInt(6)], work, income);
+                int income = work * 5 + (rand.nextInt(3)) * work;
+                startNewProject(titles[rand.nextInt(9)], work, income);
             });
+
+            betabutton = (Button)activity.findViewById(R.id.button4);
+            artbutton = (Button)activity.findViewById(R.id.button5);
+            revbutton = (Button)activity.findViewById(R.id.button6);
+
+            betabutton.setOnClickListener(e -> openBetatest());
+            artbutton.setOnClickListener(e -> postArticle());
+            revbutton.setOnClickListener(e -> postReview());
+
             adapter = new SimpleAdapter(activity, employeeManager.getAvailableEmployeesData(), R.layout.employee_view, new String[]{"Name", "Skill", "Salary"}, new int[]{R.id.employeeViewNameTextView, R.id.employeeViewSkillTextView, R.id.employeeViewSalaryTextView});
             adapter2 = new SimpleAdapter(activity, employeeManager.getUnavailableEmployeesData(), R.layout.employee_view_unavailable, new String[]{"Name", "Skill", "Salary", "Days Left"}, new int[]{R.id.employeeViewNameTextView, R.id.employeeViewSkillTextView, R.id.employeeViewSalaryTextView, R.id.daysLeftTextView});
             listView.setAdapter(adapter);
@@ -265,6 +279,33 @@ public class GameThread extends Thread {
 
         private void showMessage(String s) {
             handler.post(() -> Toast.makeText(context, s, Toast.LENGTH_SHORT).show());
+        }
+
+        private void openBetatest() {
+            Random rand = new Random();
+            int profit = project.getIncome();
+            profit = (profit*(rand.nextInt(50)+80))/100;
+            project.setIncome(profit);
+            project.setWork((int)(project.getWork()*1.15));
+            uiHolder.updateProjectInfo();
+        }
+
+        private void postArticle() {
+            balance -=1000;
+            Random rand = new Random();
+            int profit = project.getIncome();
+            profit = (profit*115)/100;
+            project.setIncome(profit);
+            uiHolder.updateProjectInfo();
+        }
+
+        private void postReview() {
+            balance -=5000;
+            Random rand = new Random();
+            int profit = project.getIncome();
+            profit = (profit*140)/100;
+            project.setIncome(profit);
+            uiHolder.updateProjectInfo();
         }
 
         public void update() {

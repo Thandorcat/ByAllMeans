@@ -95,7 +95,7 @@ public class EmployeeManager {
     public void addSkill() {
         for (int i = 0; i < employees.size(); i++) {
             employees.get(i).addSkill();
-            employeesData.get(i).put("Skill", employees.get(i).getSkill());
+            employeesData.get(i).put("Skill","Skill: " + employees.get(i).getSkill());
         }
     }
 

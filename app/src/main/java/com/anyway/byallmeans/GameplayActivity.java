@@ -53,11 +53,7 @@ public class GameplayActivity extends Activity {
             }
         });
 
-        Button button4 = (Button) findViewById(R.id.button4);
-        Button button5 = (Button) findViewById(R.id.button5);
 
-        button4.setOnClickListener(e -> gameThread.pause());
-        button5.setOnClickListener(e -> gameThread.unpause());
 
         if (savedInstanceState == null) {
             gameThread = new GameThread();

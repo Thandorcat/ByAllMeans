@@ -101,20 +101,20 @@
             <RadioButton
                 android:id="@+id/radioInfo"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_height="30dp"
+                android:layout_weight="0.95"
                 android:background="@drawable/radio_button_selector"
                 android:button="@null"
                 android:checked="false"
                 android:gravity="center"
-                android:text="Info"
+                android:text="Project"
                 android:textColor="@drawable/radio_button_text_color_selector" />
 
             <RadioButton
                 android:id="@+id/radioStaff"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_height="30dp"
+                android:layout_weight="0.95"
                 android:background="@drawable/radio_button_selector"
                 android:button="@null"
                 android:checked="true"
@@ -125,8 +125,8 @@
             <RadioButton
                 android:id="@+id/radioBank"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_height="30dp"
+                android:layout_weight="0.95"
                 android:background="@drawable/radio_button_selector"
                 android:button="@null"
                 android:checked="false"
@@ -161,7 +161,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="60dp"
                         android:elevation="0dp"
-                        android:text="STOP"
+                        android:text="Open Betatest (ones)"
                         android:textSize="18sp" />
 
                     <Button
@@ -170,7 +170,15 @@
                         android:layout_width="match_parent"
                         android:layout_height="60dp"
                         android:elevation="0dp"
-                        android:text="START"
+                        android:text="Buy an article: 1000$"
+                        android:textSize="18sp" />
+                    <Button
+                        android:id="@+id/button6"
+                        style="@style/ButtonWhite"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:elevation="0dp"
+                        android:text="By a review: 5000$"
                         android:textSize="18sp" />
 
                 </LinearLayout>

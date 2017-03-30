@@ -18,6 +18,18 @@ public class GameProject {
         return income;
     }
 
+    public void setIncome(int newIncome) {
+        income = newIncome;
+    }
+
+    public int getWork() {
+        return workLeft;
+    }
+
+    public void setWork(int newWork) {
+        workLeft = newWork;
+    }
+
     public String getTitle() {
         return title;
     }
