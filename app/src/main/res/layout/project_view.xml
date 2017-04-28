@@ -3,25 +3,27 @@
     style="@style/ButtonWhite"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:onClick="makeSequel"
+    android:padding="5dp">
 
     <TextView
         android:id="@+id/project_view_project_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@drawable/text_blue"
-        android:textSize="18sp" />
+        android:textSize="20sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:weightSum="1">
 
         <TextView
             android:id="@+id/project_view_date_finished"
-            android:layout_width="match_parent"
+            android:layout_width="238dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:textColor="@drawable/text_blue"
             android:textSize="14sp" />
 
@@ -29,9 +31,9 @@
             android:id="@+id/project_view_project_income"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:gravity="right"
             android:textColor="@drawable/text_blue"
-            android:textSize="14sp" />
+            android:textSize="16sp" />
     </LinearLayout>
 
 </LinearLayout>

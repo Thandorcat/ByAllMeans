@@ -15,6 +15,7 @@ public class GameplayActivity extends Activity {
     private static final String TAG = "GameplayActivity";
     private GameThread gameThread;
     private ListView employeeList;
+    private ListView projectHistoryList;
 
     @Override
     protected void onPause() {
@@ -34,6 +35,7 @@ public class GameplayActivity extends Activity {
         setContentView(R.layout.activity_gameplay);
 
         employeeList = (ListView) findViewById(R.id.employeesListView);
+        projectHistoryList = (ListView) findViewById(R.id.projectHistoryListView);
 
         ViewFlipper viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
         viewFlipper.setDisplayedChild(1);
@@ -90,5 +92,11 @@ public class GameplayActivity extends Activity {
     public void decreaseSalary(View view) {
         int position = employeeList.getPositionForView(view);
         gameThread.decreaseSalary(position);
+    }
+
+    public void makeSequel(View view) {
+        int position = projectHistoryList.getPositionForView(view);
+        String title = gameThread.getProjectHistrory().get(position).getTitle();
+        gameThread.startNewProject(title);
     }
 }

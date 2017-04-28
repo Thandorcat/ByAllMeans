@@ -33,6 +33,7 @@ public class GameThread extends Thread {
     private SimpleAdapter adapterHistory;
     private GameProject project;
     private List<GameProject> projectsHistory;
+    private ProjectTitleManager projectTitleManager;
     private List<Map<String, Object>> projectHistoryData;
     private long balance;
     private int salaries;
@@ -61,6 +62,7 @@ public class GameThread extends Thread {
         uiHolder = new UIHolder();
         projectsHistory = new ArrayList<>();
         employeeManager = new EmployeeManager();
+        projectTitleManager = new ProjectTitleManager();
         state = GameState.RUNNING;
         balance = 50000;
     }
@@ -79,6 +81,10 @@ public class GameThread extends Thread {
     public void setRunning(boolean running) {
         Log.d(TAG, "setRunning(boolean running)");
         this.running = running;
+    }
+
+    public List<GameProject> getProjectHistrory(){
+        return projectsHistory;
     }
 
     @Override
@@ -103,11 +109,21 @@ public class GameThread extends Thread {
                     int day = calendar.get(DAY_OF_MONTH);
                     if (day == 1) {
                         salaries = 0;
+                        int employeeIndex = 0;
+						// Pair programming. 'Expert–expert' variation 
+						// Doropey
                         for (Employee employee :
                                 employeeManager.getAllEmployees()) {
-                            balance -= employee.getSalary();
-                            salaries += employee.getSalary();
+                            if(balance>=employee.getSalary()) {
+                                balance -= employee.getSalary();
+                                salaries += employee.getSalary();
+                            }
+                            else{
+                                //fireEmployee(employeeIndex);
+                            }
+                            employeeIndex++;
                         }
+						
 
                         if (credit != 0) {
                             if (creditPayments < 5) {
@@ -205,10 +221,14 @@ public class GameThread extends Thread {
         }
     }
 
-    public void startNewProject(String title, int workAmount, int income) {
+    public void startNewProject(String original) {
         synchronized (monitor) {
             if (project == null) {
-                project = new GameProject(title, workAmount, income);
+                Random rand = new Random();
+                String title = original == null ? projectTitleManager.generateRandom() : projectTitleManager.generateSequel(original);
+                int work = rand.nextInt(1500) + 100;
+                int income = work * 5 + (rand.nextInt(3)) * work;
+                project = new GameProject(title, work, income);
                 uiHolder.updateProjectInfo();
                 uiHolder.switchProjectView(1);
                 betabutton.setEnabled(true);
@@ -287,13 +307,7 @@ public class GameThread extends Thread {
             projectIncomeTextView = (TextView) activity.findViewById(R.id.project_income);
             projectProgressProgressBar = (ProgressBar) activity.findViewById(R.id.project_progress);
             startNewProjectTextView = (TextView) activity.findViewById(R.id.new_project_text_view);
-            startNewProjectTextView.setOnClickListener(v -> {
-                String[] titles = {"Call of Duty", "SERZH Inc.", "TRiTPO", "MATAN", "Gradle", "Android Studio", "Full-Life", "World of cats", "New PHP", "Doing nothing", "Hot Chickens"};
-                Random rand = new Random();
-                int work = rand.nextInt(1500) + 100;
-                int income = work * 5 + (rand.nextInt(3)) * work;
-                startNewProject(titles[rand.nextInt(10)], work, income);
-            });
+            startNewProjectTextView.setOnClickListener(v -> startNewProject(null));
 
             betabutton = (Button) activity.findViewById(R.id.button4);
             artbutton = (Button) activity.findViewById(R.id.button5);
@@ -365,7 +379,7 @@ public class GameThread extends Thread {
         private void takeCredit() {
             credit = ((int) (balance * 2) + salaries * 2);
             balance += credit;
-            credit = (credit * 115) / 100 / 6;
+            credit = (credit * 110) / 100 / 6;
             creditPayments = 0;
             creditButton.setEnabled(false);
         }
@@ -387,7 +401,7 @@ public class GameThread extends Thread {
                 if (credit == 0) {
                     int creditsize = (int) (balance * 2) + salaries * 2;
                     creditSummView.setText(creditsize + "$ for 6 months");
-                    int monthPayment = (creditsize * 115) / 100 / 6;
+                    int monthPayment = (creditsize * 110) / 100 / 6;
                     creditMonthView.setText(monthPayment + "$/month");
                     creditButton.setEnabled(true);
                 } else {
