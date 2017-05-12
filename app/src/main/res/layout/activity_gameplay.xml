@@ -178,6 +178,7 @@
                         android:elevation="0dp"
                         android:text="Buy an article: 1000$"
                         android:textSize="18sp" />
+
                     <Button
                         android:id="@+id/button6"
                         style="@style/ButtonWhite"

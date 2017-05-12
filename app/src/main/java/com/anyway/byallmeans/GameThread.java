@@ -1,12 +1,16 @@
 package com.anyway.byallmeans;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RadioGroup;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -110,21 +114,6 @@ public class GameThread extends Thread {
                     if (day == 1) {
                         salaries = 0;
                         int employeeIndex = 0;
-						// Pair programming. 'Expert–expert' variation 
-						// Doropey
-                        for (Employee employee :
-                                employeeManager.getAllEmployees()) {
-                            if(balance>=employee.getSalary()) {
-                                balance -= employee.getSalary();
-                                salaries += employee.getSalary();
-                            }
-                            else{
-                                //fireEmployee(employeeIndex);
-                            }
-                            employeeIndex++;
-                        }
-						
-
                         if (credit != 0) {
                             if (creditPayments < 5) {
                                 balance -= credit;
@@ -133,6 +122,26 @@ public class GameThread extends Thread {
                                 balance -= credit;
                                 credit = 0;
                             }
+                        }
+                        // Pair programming. 'Expert–expert' variation
+						// Doropey
+                        for (Employee employee :
+                                employeeManager.getAllEmployees()) {
+                            if(balance>=employee.getSalary()) {
+                                balance -= employee.getSalary();
+                                salaries += employee.getSalary();
+                                employee.upLoyalty();
+                                if (employee.getLoyalty() < 100) {
+                                    uiHolder.showPopUpFire(employeeIndex, employee);
+                                }
+                            }
+                            else{
+                                if (!employee.checkLoyalty()) {
+                                    fireEmployee(employeeIndex);
+                                    employeeIndex--;
+                                }
+                            }
+                            employeeIndex++;
                         }
 
                     }
@@ -172,12 +181,14 @@ public class GameThread extends Thread {
         }
     }
 
+
     public void pause() {
         synchronized (monitor) {
             state = GameState.PAUSED;
         }
 
     }
+
 
     public void unpause() {
         synchronized (monitor) {
@@ -204,7 +215,7 @@ public class GameThread extends Thread {
         synchronized (monitor) {
             if (employeeManager.getAvailableEmployees().size() > index) {
                 employeeManager.remove(index);
-                adapter.notifyDataSetChanged();
+                //adapter.notifyDataSetChanged();
             }
         }
     }
@@ -228,6 +239,20 @@ public class GameThread extends Thread {
                 String title = original == null ? projectTitleManager.generateRandom() : projectTitleManager.generateSequel(original);
                 int work = rand.nextInt(1500) + 100;
                 int income = work * 5 + (rand.nextInt(3)) * work;
+                project = new GameProject(title, work, income);
+                uiHolder.updateProjectInfo();
+                uiHolder.switchProjectView(1);
+                betabutton.setEnabled(true);
+            }
+        }
+    }
+
+    public void startNewProject(String original, int work) {
+        synchronized (monitor) {
+            if (project == null) {
+                Random rand = new Random();
+                String title = original == null ? projectTitleManager.generateRandom() : projectTitleManager.generateSequel(original);
+                int income = work * 8 + (rand.nextInt(3)) * work;
                 project = new GameProject(title, work, income);
                 uiHolder.updateProjectInfo();
                 uiHolder.switchProjectView(1);
@@ -307,7 +332,8 @@ public class GameThread extends Thread {
             projectIncomeTextView = (TextView) activity.findViewById(R.id.project_income);
             projectProgressProgressBar = (ProgressBar) activity.findViewById(R.id.project_progress);
             startNewProjectTextView = (TextView) activity.findViewById(R.id.new_project_text_view);
-            startNewProjectTextView.setOnClickListener(v -> startNewProject(null));
+            //startNewProjectTextView.setOnClickListener(v -> startNewProject(null));
+            startNewProjectTextView.setOnClickListener(v -> showPopUp());
 
             betabutton = (Button) activity.findViewById(R.id.button4);
             artbutton = (Button) activity.findViewById(R.id.button5);
@@ -433,6 +459,68 @@ public class GameThread extends Thread {
                     calendar.get(YEAR)));
             projectHistoryData.add(m);
             handler.post(() -> adapterHistory.notifyDataSetChanged());
+        }
+
+        public void showPopUp() {
+
+            Button ok;
+            Button cancel;
+            final int[] work = {-1};
+            AlertDialog.Builder helpBuilder = new AlertDialog.Builder(context);
+            helpBuilder.setTitle("Choose project type ");
+            View view;
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            view = inflater.inflate(R.layout.popup_project_view, null);
+            helpBuilder.setView(view);
+
+            ok = (Button) view.findViewById(R.id.button3);
+
+            cancel = (Button) view.findViewById(R.id.button2);
+            RadioGroup chooseGroup = (RadioGroup) view.findViewById(R.id.radioGroup);
+            Random rand = new Random();
+
+            // Remember, create doesn't show the dialog
+            AlertDialog helpDialog = helpBuilder.create();
+            ok.setOnClickListener(v -> {
+                switch (chooseGroup.getCheckedRadioButtonId()) {
+                    case R.id.radioButtonAAA:
+                        work[0] = rand.nextInt(1500) + 5000;
+                        break;
+                    case R.id.radioButtonIndie:
+                        work[0] = rand.nextInt(500) + 500;
+                        break;
+                    case R.id.radioButtonHorror:
+                        work[0] = rand.nextInt(1000) + 2000;
+                        break;
+                    case R.id.radioButtonPlat:
+                        work[0] = rand.nextInt(500) + 1000;
+                        break;
+                }
+                startNewProject(null, work[0]);
+                helpDialog.dismiss();
+            });
+            cancel.setOnClickListener(v -> helpDialog.dismiss());
+            helpDialog.show();
+
+        }
+
+        private void showPopUpFire(int index, Employee employee) {
+
+            handler.post(() -> {
+                AlertDialog.Builder helpBuilder = new AlertDialog.Builder(context);
+                helpBuilder.setMessage("This is a Simple Pop Up");
+                helpBuilder.setPositiveButton("Fire him",
+                        (dialog, which) -> fireEmployee(index));
+
+                helpBuilder.setNegativeButton("Agree", (dialog, which) -> {
+                    employeeManager.changeSalary(index, employee.getSkill() * 150 - employee.getSalary());
+                });
+
+                // Remember, create doesn't show the dialog
+                AlertDialog helpDialog = helpBuilder.create();
+                helpDialog.show();
+            });
+
         }
     }
 }

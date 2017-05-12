@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.RadioGroup;
 import android.widget.ViewFlipper;
@@ -97,6 +96,9 @@ public class GameplayActivity extends Activity {
     public void makeSequel(View view) {
         int position = projectHistoryList.getPositionForView(view);
         String title = gameThread.getProjectHistrory().get(position).getTitle();
-        gameThread.startNewProject(title);
+        int work = gameThread.getProjectHistrory().get(position).getWorkTotal();
+        work *= 1.2;
+        gameThread.startNewProject(title, work);
     }
+
 }

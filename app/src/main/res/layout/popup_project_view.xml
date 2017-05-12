@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    android:orientation="vertical"><![CDATA[
+
+    android:id="@+id/textView2" />
+
+    ]]>
+
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp">
+
+        <RadioButton
+            android:id="@+id/radioButtonIndie"
+            android:layout_width="match_parent"
+            android:layout_height="59dp"
+            android:background="@drawable/radio_button_selector"
+            android:button="@null"
+            android:checked="true"
+            android:gravity="center"
+            android:text="Indie"
+            android:textColor="@drawable/radio_button_text_color_selector" />
+
+        <RadioButton
+            android:id="@+id/radioButtonPlat"
+            android:layout_width="match_parent"
+            android:layout_height="59dp"
+            android:background="@drawable/radio_button_selector"
+            android:button="@null"
+            android:gravity="center"
+            android:text="Platformer"
+            android:textColor="@drawable/radio_button_text_color_selector" />
+
+        <RadioButton
+            android:id="@+id/radioButtonHorror"
+            android:layout_width="match_parent"
+            android:layout_height="59dp"
+            android:background="@drawable/radio_button_selector"
+            android:button="@null"
+            android:gravity="center"
+            android:text="Horror"
+            android:textColor="@drawable/radio_button_text_color_selector" />
+
+        <RadioButton
+            android:id="@+id/radioButtonAAA"
+            android:layout_width="match_parent"
+            android:layout_height="59dp"
+            android:background="@drawable/radio_button_selector"
+            android:button="@null"
+            android:gravity="center"
+            android:text="AAA"
+            android:textColor="@drawable/radio_button_text_color_selector" />
+
+    </RadioGroup>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="5dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/button3"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:background="@drawable/button_blue"
+            android:text="OK"
+            android:textColor="@drawable/button_blue_text_color" />
+
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:background="@drawable/button_blue"
+            android:text="Cancel"
+            android:textColor="@drawable/button_blue_text_color" />
+    </LinearLayout>
+
+</LinearLayout>

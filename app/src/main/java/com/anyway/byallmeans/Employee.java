@@ -5,6 +5,7 @@ public class Employee {
     private int skill;
     private int salary;
     private int daysLeft;
+    private int loyalty = 100;
 
     public Employee(String name, int skill, int salary) {
         this.name = name;
@@ -26,6 +27,24 @@ public class Employee {
 
     public void setSalary(int newValue) {
         this.salary = newValue;
+    }
+
+    public boolean checkLoyalty() {
+        if ((loyalty >= 100) && (salary / skill >= 100)) {
+            loyalty -= 10;
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+
+    public int getLoyalty() {
+        return loyalty;
+    }
+
+    public void upLoyalty() {
+        loyalty = salary / skill;
     }
 
     public String getName() {

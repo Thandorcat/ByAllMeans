@@ -22,6 +22,10 @@ public class GameProject {
         income = newIncome;
     }
 
+    public int getWorkTotal() {
+        return workTotal;
+    }
+
     public int getWork() {
         return workLeft;
     }
