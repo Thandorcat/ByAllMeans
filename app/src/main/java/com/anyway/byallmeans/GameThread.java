@@ -508,7 +508,7 @@ public class GameThread extends Thread {
 
             handler.post(() -> {
                 AlertDialog.Builder helpBuilder = new AlertDialog.Builder(context);
-                helpBuilder.setMessage("This is a Simple Pop Up");
+                helpBuilder.setMessage(employee.getName() + " is unsatisfied with his salary, and asks you for increase or he will quit.");
                 helpBuilder.setPositiveButton("Fire him",
                         (dialog, which) -> fireEmployee(index));
 
